@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoGenius - Sáng Tạo Số, Kiến Tạo Xanh</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --light-green: #4CAF50;
+            --bright-green: #8BC34A;
+            --tech-blue: #2196F3;
+            --background: #F5F9F5;
+            --card-bg: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --shadow: 0 4px 12px rgba(46, 125, 50, 0.1);
+            --radius: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--background); color: var(--text-dark); padding: 10px; }
+        .container { max-width: 800px; margin: auto; }
+        /* ===== CÁC LỚP ĐIỀU KHIỂN "TRANG" ===== */
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* ===== HEADER THỐNG NHẤT ===== */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-green), var(--tech-blue));
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .logo { font-weight: 700; font-size: 1.5rem; display: flex; align-items: center; gap: 10px; }
+        .user-points { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-weight: 600; }
+        /* ===== NAVIGATION BAR ===== */
+        .nav-bar {
+            display: flex;
+            justify-content: space-around;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 10px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            position: sticky; top: 10px; z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: all 0.3s;
+            flex: 1;
+            text-align: center;
+        }
+        .nav-item.active, .nav-item:hover {
+            background-color: var(--light-green);
+            color: white;
+            transform: translateY(-2px);
+        }
+        .nav-icon { font-size: 1.2rem; margin-bottom: 5px; }
+        .nav-text { font-size: 0.8rem; font-weight: 500; }
+        /* ===== CÁC THÀNH PHẦN CHUNG ===== */
+        .card { background: var(--card-bg); padding: 20px; border-radius: var(--radius); margin-bottom: 20px; box-shadow: var(--shadow); }
+        h2 { color: var(--primary-green); margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid var(--bright-green); }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(to right, var(--light-green), var(--tech-blue));
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3); }
+        .btn-small { padding: 8px 16px; font-size: 0.9rem; }
+        .btn-block { display: block; width: 100%; }
+        /* ===== MÀN HÌNH ĐĂNG KÝ/ĐĂNG NHẬP ===== */
+        .auth-card { max-width: 400px; margin: 40px auto; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary-green); }
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        .form-input:focus { outline: none; border-color: var(--light-green); }
+        .error-message { color: #f44336; font-size: 0.9rem; margin-top: 5px; display: none; }
+        /* ===== MÀN HÌNH HOME (DASHBOARD) ===== */
+        .welcome-banner {
+            background: linear-gradient(90deg, #E8F5E9, #E3F2FD);
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 6px solid var(--primary-green);
+        }
+        .progress-section { text-align: center; }
+        .progress-circle {
+            position: relative;
+            width: 120px; height: 120px;
+            margin: 20px auto;
+            border-radius: 50%;
+            background: conic-gradient(var(--light-green) 0% 75%, #e0e0e0 75% 100%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .progress-inner {
+            width: 90px; height: 90px;
+            background: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.5rem; color: var(--primary-green);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-item {
+            background: #F1F8E9;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-green); display: block; }
+        .stat-label { font-size: 0.9rem; color: var(--text-light); }
+        /* ===== MÀN HÌNH DANH SÁCH BÀI HỌC ===== */
+        .lesson-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .lesson-item {
+            border-left: 5px solid var(--tech-blue);
+            transition: transform 0.3s;
+        }
+        .lesson-item:hover { transform: translateY(-5px); }
+        .lesson-title { font-size: 1.2rem; margin-bottom: 10px; color: var(--text-dark); }
+        .lesson-meta { display: flex; justify-content: space-between; color: var(--text-light); font-size: 0.9rem; margin-bottom: 15px; }
+        .lesson-status { padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; }
+        .status-new { background: #FFEBEE; color: #C62828; }
+        .status-completed { background: #E8F5E9; color: var(--primary-green); }
+        /* ===== MÀN HÌNH CHI TIẾT BÀI HỌC ===== */
+        .theory-content {
+            line-height: 1.8;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding: 15px;
+            background: #FAFAFA;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+        }
+        .action-box {
+            background: #E8F5E9;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid var(--bright-green);
+        }
+        /* ===== MÀN HÌNH QUIZ ===== */
+        .quiz-question { margin-bottom: 25px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 12px; margin-top: 15px; }
+        .quiz-option {
+            padding: 15px;
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quiz-option.selected {
+            background: #E3F2FD;
+            border-color: var(--tech-blue);
+            font-weight: 600;
+        }
+        .quiz-result { text-align: center; padding: 30px; }
+        .score-circle {
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--light-green), var(--tech-blue));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 20px auto;
+        }
+        /* ===== MÀN HÌNH CỬA HÀNG & AVATAR ===== */
+        .avatar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 20px; }
+        .avatar-item {
+            text-align: center;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .avatar-item.owned { border-color: var(--bright-green); background: #F1F8E9; }
+        .avatar-item.selected { border-color: var(--tech-blue); background: #E3F2FD; transform: scale(1.05); }
+        .avatar-icon { font-size: 2.5rem; margin-bottom: 10px; display: block; }
+        .avatar-price { color: var(--light-green); font-weight: 600; }
+        /* ===== ECOBOT CHAT ===== */
+        .chat-container { display: flex; flex-direction: column; height: 60vh; }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f0f4f8;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            line-height: 1.4;
+        }
+        .bot-message { align-self: flex-start; background: white; border-bottom-left-radius: 5px; }
+        .user-message { align-self: flex-end; background: linear-gradient(90deg, var(--bright-green), var(--light-green)); color: white; border-bottom-right-radius: 5px; }
+        .chat-input-container { display: flex; gap: 10px; }
+        #chatInput { flex-grow: 1; padding: 15px; border: 2px solid #e0e0e0; border-radius: 50px; }
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .lesson-list { grid-template-columns: 1fr; }
+            .nav-text { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- KHUNG HEADER HIỂN THỊ TRÊN TẤT CẢ CÁC TRANG -->
+        <header class="app-header">
+            <div class="logo"><i class="fas fa-seedling"></i> EcoGenius</div>
+            <div class="user-points" id="headerPoints">0 Điểm Xanh</div>
+        </header>
+
+        <!-- THANH ĐIỀU HƯỚNG -->
+        <nav class="nav-bar">
+            <div class="nav-item active" data-target="homeScreen"><i class="fas fa-home nav-icon"></i><span class="nav-text">Trang chủ</span></div>
+            <div class="nav-item" data-target="learnScreen"><i class="fas fa-book-open nav-icon"></i><span class="nav-text">Học tập</span></div>
+            <div class="nav-item" data-target="storeScreen"><i class="fas fa-store nav-icon"></i><span class="nav-text">Cửa hàng</span></div>
+            <div class="nav-item" data-target="ecoBotScreen"><i class="fas fa-robot nav-icon"></i><span class="nav-text">Ecobot</span></div>
+            <div class="nav-item" data-target="profileScreen"><i class="fas fa-user nav-icon"></i><span class="nav-text">Cá nhân</span></div>
+        </nav>
+
+        <!-- CÁC MÀN HÌNH (SCREEN) CỦA ỨNG DỤNG -->
+        <!-- MÀN HÌNH ĐĂNG NHẬP/ĐĂNG KÝ -->
+        <section id="authScreen" class="screen active">
+            <div class="card auth-card">
+                <h2>Chào mừng đến với EcoGenius!</h2>
+                <div class="form-group">
+                    <label class="form-label">Tên đăng nhập</label>
+                    <input type="text" id="regUsername" class="form-input" placeholder="Tạo tên riêng cho bạn" minlength="3">
+                    <div class="error-message" id="usernameError">Tên người dùng đã tồn tại hoặc không hợp lệ.</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu (ít nhất 6 ký tự)</label>
+                    <input type="password" id="regPassword" class="form-input" placeholder="Nhập mật khẩu" minlength="6">
+                    <div class="error-message" id="passwordError">Mật khẩu phải có ít nhất 6 ký tự.</div>
+                </div>
+                <button class="btn btn-block" id="registerBtn">Bắt đầu Hành Trình Xanh</button>
+                <p style="text-align:center; margin-top:15px; color:var(--text-light)">Đã có tài khoản? <a href="#" style="color:var(--tech-blue); font-weight:600" id="switchToLogin">Đăng nhập</a></p>
+            </div>
+        </section>
+
+        <!-- MÀN HÌNH HOME (DASHBOARD) -->
+        <section id="homeScreen" class="screen">
+            <div class="welcome-banner">
+                <h2>Chào bạn, <span id="userGreeting">Người Kiến Tạo Xanh!</span></h2>
+                <p>Hôm nay bạn muốn khám phá điều gì?</p>
+            </div>
+            <div class="card progress-section">
+                <h2><i class="fas fa-chart-line"></i> Tiến Độ Của Bạn</h2>
+                <div class="progress-circle"><div class="progress-inner"><span id="progressPercent">0</span>%</div></div>
+                <p>Bạn đã hoàn thành <strong id="completedLessons">0</strong> trên 10 bài học.</p>
+            </div>
+            <div class="card">
+                <h2><i class="fas fa-trophy"></i> Thành Tích Nổi Bật</h2>
+                <div class="stats-grid">
+                    <div class="stat-item"><span class="stat-value" id="totalPoints">0</span><span class="stat-label">Điểm Xanh</span></div>
+                    <div class="stat-item"><span class="stat-value" id="badgeCount">0</span><span class="stat-label">Huy Hiệu</span></div>
+                    <div class="stat-item"><span class="stat-value" id="quizDone">0</span><span class="stat-label">Quiz Đã Làm</span></div>
+                    <div class="stat-item"><span class="stat-value" id="avatarCount">1</span><span class="stat-label">Avatar</span></div>
+                </div>
+            </div>
+            <div class="card">
+                <h2><i class="fas fa-rocket"></i> Bài Học Tiếp Theo</h2>
+                <p><strong id="nextLessonTitle">AI Xanh: Trí Tuệ Nhân Tạo Vì Hành Tinh</strong></p>
+                <button class="btn" data-target="learnScreen" onclick="switchScreen('learnScreen')">Tiếp Tục Học Ngay</button>
+            </div>
+        </section>
+
+        <!-- MÀN HÌNH DANH SÁCH BÀI HỌC -->
+        <section id="learnScreen" class="screen">
+            <div class="card">
+                <h2><i class="fas fa-graduation-cap"></i> Học Tập</h2>
+                <p>Chọn một bài học để bắt đầu hành trình Sáng Tạo Số - Kiến Tạo Xanh của bạn.</p>
+            </div>
+            <div id="lessonListContainer">
+                <!-- Danh sách bài học sẽ được tải động bằng JavaScript -->
+            </div>
+        </section>
+
+        <!-- MÀN HÌNH BÀI HỌC CHI TIẾT -->
+        <section id="lessonDetailScreen" class="screen">
+            <div class="card">
+                <button class="btn-small" onclick="switchScreen('learnScreen')"><i class="fas fa-arrow-left"></i> Quay lại</button>
+                <h2 id="detailLessonTitle">Bài 1: AI Xanh</h2>
+                <div class="theory-content" id="lessonTheoryContent">
+                    <!-- Nội dung lý thuyết sẽ được tải động -->
+                </div>
+                <div class="action-box">
+                    <p><i class="fas fa-lightbulb"></i> <strong>Hành động của bạn:</strong> Hãy thử tắt đèn và thiết bị điện khi không dùng trong một ngày.</p>
+                </div>
+                <button class="btn" id="startQuizBtn">Làm Quiz Kiểm Tra Ngay</button>
+            </div>
+        </section>
+
+        <!-- MÀN HÌNH CỬA HÀNG AVATAR -->
+        <section id="storeScreen" class="screen">
+            <div class="card">
+                <h2><i class="fas fa-leaf"></i> Cửa Hàng Xanh</h2>
+                <p>Dùng <strong id="storePoints">0</strong> Điểm Xanh của bạn để đổi lấy các avatar đặc biệt!</p>
+                <div class="avatar-grid" id="avatarStoreGrid">
+                    <!-- Danh sách avatar sẽ được tải động -->
+                </div>
+            </div>
+        </section>
+
+        <!-- MÀN HÌNH ECOBOT -->
+        <section id="ecoBotScreen" class="screen">
+            <div class="card">
+                <h2><i class="fas fa-robot"></i> Ecobot - Trợ Lý Xanh</h2>
+                <p>Tôi có thể giải đáp thắc mắc về bài học, môi trường và công nghệ. Hỏi tôi bất cứ điều gì!</p>
+            </div>
+            <div class="card chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot-message">Xin chào! Tôi là Ecobot. Bạn muốn tìm hiểu điều gì về Sáng Tạo Số và Kiến Tạo Xanh?</div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" class="form-input" placeholder="Nhập câu hỏi của bạn...">
+                    <button class="btn" id="sendMessageBtn"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÀN HÌNH HỒ SƠ -->
+        <section id="profileScreen" class="screen">
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 10px;" id="profileAvatar">🌱</div>
+                <h2 id="profileUsername">Tên Người Dùng</h2>
+                <p class="stat-label" id="profileTitle">Người mới bắt đầu</p>
+            </div>
+            <div class="card">
+                <h2><i class="fas fa-medal"></i> Huy Hiệu Của Bạn</h2>
+                <div id="badgeCollection">
+                    <!-- Huy hiệu sẽ được tải động -->
+                </div>
+            </div>
+            <div class="card">
+                <button class="btn btn-block" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Đăng Xuất</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // ===================== CƠ SỞ DỮ LIỆU & TRẠNG THÁI ỨNG DỤNG =====================
+        const APP_STATE = {
+            currentUser: null,
+            users: JSON.parse(localStorage.getItem('ecogenius_users')) || {},
+            lessons: [
+                {
+                    id: 1,
+                    title: "AI Xanh: Trí Tuệ Nhân Tạo Vì Hành Tinh",
+                    content: `... (500-600 chữ về AI Xanh) ...`,
+                    completed: false, quizScore: 0
+                },
+                {
+                    id: 2,
+                    title: "Thành Phố Thông Minh Và Bền Vững",
+                    content: `... (500-600 chữ về thành phố thông minh) ...`,
+                    completed: false, quizScore: 0
+                }
+                // ... thêm 8 bài học khác ...
+            ],
+            avatars: [
+                { id: 1, icon: "🌱", name: "Mầm Xanh", price: 0, owned: true },
+                { id: 2, icon: "🌍", name: "Trái Đất", price: 300, owned: false },
+                { id: 3, icon: "🤖", name: "Robot Xanh", price: 450, owned: false },
+                { id: 4, icon: "♻️", name: "Tái Chế", price: 500, owned: false }
+            ],
+            badges: [
+                { id: 1, name: "Hạt Giống Xanh", desc: "Bắt đầu hành trình", pointsRequired: 50, unlocked: false },
+                { id: 2, name: "Mầm Sáng Tạo", desc: "Tích lũy 200 điểm", pointsRequired: 200, unlocked: false },
+                { id: 3, name: "Nhà Cải Cách Xanh", desc: "Tích lũy 500 điểm", pointsRequired: 500, unlocked: false }
+            ],
+            ecobotKnowledge: [
+                { keywords: ["chào", "hello", "xin chào"], response: "Chào bạn! Tôi là Ecobot. Hãy hỏi tôi về công nghệ xanh, tiết kiệm năng lượng hay bảo vệ môi trường!" },
+                { keywords: ["AI xanh", "trí tuệ nhân tạo"], response: "AI Xanh là ứng dụng trí tuệ nhân tạo để giải quyết vấn đề môi trường, như tối ưu hóa năng lượng hoặc dự báo thiên tai." },
+                { keywords: ["tái chế", "rác thải", "3R"], response: "Nguyên tắc 3R là Giảm thiểu (Reduce), Tái sử dụng (Reuse), Tái chế (Recycle). Bạn có thể bắt đầu bằng việc phân loại rác tại nhà!" },
+                { keywords: ["tiết kiệm", "năng lượng"], response: "Hãy tắt đèn và rút phích cắm thiết bị khi không dùng. Sử dụng đèn LED và máy có nhãn tiết kiệm năng lượng." },
+                { keywords: ["làm sao", "học"], response: "Hãy vào mục Học tập, chọn một bài và đọc kỹ lý thuyết. Sau đó làm quiz để kiểm tra kiến thức và nhận điểm nhé!" }
+            ]
+        };
+
+        // ===================== HỆ THỐNG ĐĂNG KÝ/ĐĂNG NHẬP =====================
+        document.getElementById('registerBtn').onclick = function() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            let valid = true;
+
+            // Validate
+            if (username.length < 3) {
+                document.getElementById('usernameError').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('usernameError').style.display = 'none';
+            }
+            if (password.length < 6) {
+                document.getElementById('passwordError').style.display = 'block';
+                valid = false;
+            } else {
+                document.getElementById('passwordError').style.display = 'none';
+            }
+            if (APP_STATE.users[username]) {
+                alert("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.");
+                valid = false;
+            }
+            if (!valid) return;
+
+            // Tạo user mới
+            APP_STATE.users[username] = {
+                username: username,
+                password: password,
+                points: 0,
+                completedLessons: [],
+                ownedAvatars: [1], // Avatar mặc định
+                currentAvatar: 1,
+                unlockedBadges: []
+            };
+            APP_STATE.currentUser = APP_STATE.users[username];
+
+            // Lưu vào localStorage
+            localStorage.setItem('ecogenius_users', JSON.stringify(APP_STATE.users));
+            localStorage.setItem('ecogenius_currentUser', username);
+
+            alert("Đăng ký thành công! Bắt đầu hành trình của bạn nào.");
+            switchScreen('homeScreen');
+            updateUI();
+        };
+
+        // ===================== HỆ THỐNG CHUYỂN MÀN HÌNH & NAV =====================
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelector(`[data-target="${screenId}"]`).classList.add('active');
+        }
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                if (APP_STATE.currentUser || this.dataset.target === 'authScreen') {
+                    switchScreen(this.dataset.target);
+                } else {
+                    alert("Vui lòng đăng nhập trước.");
+                }
+            });
+        });
+
+        // ===================== CẬP NHẬT GIAO DIỆN NGƯỜI DÙNG =====================
+        function updateUI() {
+            if (!APP_STATE.currentUser) return;
+            const u = APP_STATE.currentUser;
+            // Cập nhật điểm trên header
+            document.getElementById('headerPoints').textContent = u.points + " Điểm Xanh";
+            // Cập nhật dashboard
+            document.getElementById('userGreeting').textContent = u.username;
+            document.getElementById('totalPoints').textContent = u.points;
+            document.getElementById('completedLessons').textContent = u.completedLessons.length;
+            document.getElementById('progressPercent').textContent = (u.completedLessons.length / 10 * 100).toFixed(0);
+            // ... (cập nhật các phần tử khác)
+            updateBadges();
+            updateAvatarStore();
+        }
+
+        // ===================== CHỨC NĂNG BÀI HỌC =====================
+        function loadLessonList() {
+            const container = document.getElementById('lessonListContainer');
+            container.innerHTML = '';
+            APP_STATE.lessons.forEach(lesson => {
+                const isCompleted = APP_STATE.currentUser.completedLessons.includes(lesson.id);
+                const div = document.createElement('div');
+                div.className = 'card lesson-item';
+                div.innerHTML = `
+                    <h3 class="lesson-title">Bài ${lesson.id}: ${lesson.title}</h3>
+                    <div class="lesson-meta">
+                        <span><i class="far fa-file-alt"></i> Lý thuyết</span>
+                        <span class="lesson-status ${isCompleted ? 'status-completed' : 'status-new'}">
+                            ${isCompleted ? 'Đã hoàn thành' : 'Mới'}
+                        </span>
+                    </div>
+                    <button class="btn btn-small" onclick="openLessonDetail(${lesson.id})">
+                        ${isCompleted ? 'Ôn Tập Lại' : 'Bắt Đầu Học'}
+                    </button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        function openLessonDetail(lessonId) {
+            const lesson = APP_STATE.lessons.find(l => l.id === lessonId);
+            document.getElementById('detailLessonTitle').textContent = `Bài ${lesson.id}: ${lesson.title}`;
+            document.getElementById('lessonTheoryContent').innerHTML = `<p>${lesson.content}</p>`;
+            // Gán sự kiện cho nút làm quiz
+            document.getElementById('startQuizBtn').onclick = function() { startQuiz(lessonId); };
+            switchScreen('lessonDetailScreen');
+        }
+
+        // ===================== CHỨC NĂNG QUIZ (MẪU) =====================
+        function startQuiz(lessonId) {
+            alert(`Bắt đầu quiz cho bài ${lessonId}! (Chức năng đầy đủ cần phát triển thêm câu hỏi chi tiết)`);
+            // Giả lập hoàn thành quiz và cộng điểm
+            const user = APP_STATE.currentUser;
+            if (!user.completedLessons.includes(lessonId)) {
+                user.completedLessons.push(lessonId);
+                user.points += 120; // Điểm lý thuyết + quiz
+            }
+            // Lưu và cập nhật
+            APP_STATE.users[user.username] = user;
+            localStorage.setItem('ecogenius_users', JSON.stringify(APP_STATE.users));
+            updateUI();
+            switchScreen('homeScreen');
+            alert(`Chúc mừng! Bạn đã hoàn thành bài học và nhận được 120 Điểm Xanh!`);
+        }
+
+        // ===================== CHỨC NĂNG CỬA HÀNG AVATAR =====================
+        function updateAvatarStore() {
+            const grid = document.getElementById('avatarStoreGrid');
+            grid.innerHTML = '';
+            APP_STATE.avatars.forEach(avatar => {
+                const isOwned = APP_STATE.currentUser.ownedAvatars.includes(avatar.id);
+                const isSelected = APP_STATE.currentUser.currentAvatar === avatar.id;
+                const div = document.createElement('div');
+                div.className = `avatar-item ${isOwned ? 'owned' : ''} ${isSelected ? 'selected' : ''}`;
+                div.innerHTML = `
+                    <span class="avatar-icon">${avatar.icon}</span>
+                    <div>${avatar.name}</div>
+                    ${isOwned ?
+                        `<div style="color:var(--tech-blue); font-size:0.9rem;">Đã sở hữu</div>` :
+                        `<div class="avatar-price">${avatar.price} điểm</div>
+                         <button class="btn-small" onclick="buyAvatar(${avatar.id})" ${APP_STATE.currentUser.points >= avatar.price ? '' : 'disabled'}>Mua</button>`
+                    }
+                `;
+                if (isOwned && !isSelected) {
+                    const selectBtn = document.createElement('button');
+                    selectBtn.className = 'btn-small';
+                    selectBtn.textContent = 'Chọn';
+                    selectBtn.onclick = () => selectAvatar(avatar.id);
+                    div.appendChild(selectBtn);
+                }
+                grid.appendChild(div);
+            });
+            document.getElementById('storePoints').textContent = APP_STATE.currentUser.points;
+        }
+        function buyAvatar(avatarId) {
+            const avatar = APP_STATE.avatars.find(a => a.id === avatarId);
+            const user = APP_STATE.currentUser;
+            if (user.points >= avatar.price) {
+                user.points -= avatar.price;
+                user.ownedAvatars.push(avatarId);
+                user.currentAvatar = avatarId;
+                APP_STATE.users[user.username] = user;
+                localStorage.setItem('ecogenius_users', JSON.stringify(APP_STATE.users));
+                updateUI();
+                updateAvatarStore();
+                alert(`Bạn đã mua avatar ${avatar.name} thành công!`);
+            } else {
+                alert("Bạn không có đủ Điểm Xanh.");
+            }
+        }
+
+        // ===================== CHATBOT ECOBOT =====================
+        document.getElementById('sendMessageBtn').onclick = sendMessage;
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const userText = input.value.trim();
+            if (!userText) return;
+
+            // Hiển thị tin nhắn người dùng
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user-message';
+            userMsg.textContent = userText;
+            document.getElementById('chatMessages').appendChild(userMsg);
+
+            // Tìm câu trả lời
+            let botResponse = "Tôi chưa hiểu câu hỏi của bạn. Hãy hỏi về công nghệ xanh, môi trường hoặc bài học nhé!";
+            const lowerText = userText.toLowerCase();
+            for (const item of APP_STATE.ecobotKnowledge) {
+                if (item.keywords.some(keyword => lowerText.includes(keyword))) {
+                    botResponse = item.response;
+                    break;
+                }
+            }
+
+            // Hiển thị phản hồi của bot (có độ trễ giả lập)
+            setTimeout(() => {
+                const botMsg = document.createElement('div');
+                botMsg.className = 'message bot-message';
+                botMsg.textContent = botResponse;
+                document.getElementById('chatMessages').appendChild(botMsg);
+                document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+            }, 500);
+
+            input.value = '';
+            input.focus();
+        }
+
+        // ===================== KHỞI TẠO ỨNG DỤNG =====================
+        function initApp() {
+            const savedUser = localStorage.getItem('ecogenius_currentUser');
+            if (savedUser && APP_STATE.users[savedUser]) {
+                APP_STATE.currentUser = APP_STATE.users[savedUser];
+                switchScreen('homeScreen');
+                updateUI();
+                loadLessonList();
+            } else {
+                switchScreen('authScreen');
+            }
+        }
+        window.onload = initApp;
+    </script>
+</body>
+</html>
